@@ -13,13 +13,27 @@ namespace BibliotecaAPI.Controllers
         private readonly AplicationDBContext context;
         public AutoresController(AplicationDBContext context)
         {
-          this.context = context;
+            this.context = context;
         }
         [HttpGet]
         public async Task<IEnumerable<Autor>> Get()
         {
             return await context.Autores.ToListAsync();
         }
+
+
+        [HttpGet("{id:int}")] // api/autores/id
+        public async Task<ActionResult<Autor>>  Get(int id)
+        {
+            var autor = await context.Autores.FirstOrDefaultAsync(x => x.Id == id);
+            if (autor is null)
+            {
+                return NotFound();
+            }
+            return autor;
+        }
+        
+
         [HttpPost]
         public async Task<ActionResult> Post(Autor autor)
         {
