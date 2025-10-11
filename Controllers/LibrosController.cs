@@ -34,6 +34,11 @@ namespace BibliotecaAPI.Controllers
         [HttpPost]  // api/libros
         public async Task<ActionResult<Libro>> Post(Libro libro)
         {
+            var existeAutor = await context.Autores.AnyAsync(x => x.Id == libro.AutorId);
+            if (!existeAutor)
+            {
+                return BadRequest($"El autor de id{libro.AutorId} no exixte");
+            }
             context.Add(libro);
             await context.SaveChangesAsync();
             return Ok();
