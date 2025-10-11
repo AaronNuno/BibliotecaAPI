@@ -9,4 +9,6 @@ var app = builder.Build();
 
 // add middleware 
 
+app.MapControllers();
+
 app.Run();
