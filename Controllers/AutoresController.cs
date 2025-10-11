@@ -42,6 +42,7 @@ namespace BibliotecaAPI.Controllers
             return Ok();
         }
 
+
         [HttpPut ("{id:int}")] // api/autores/id
         public async Task<ActionResult> Put(int id, Autor autor)
         {
@@ -51,6 +52,17 @@ namespace BibliotecaAPI.Controllers
             }
             context.Update(autor);  
             await context.SaveChangesAsync();
+            return Ok();
+        }
+
+        [HttpDelete("{id:int}")] // api/autores/id
+        public async Task<ActionResult> Delete(int id)
+        {
+            var registrosBorrados = await context.Autores.Where(x => x.Id == id).ExecuteDeleteAsync();
+            if (registrosBorrados == 0)
+            {
+                return NotFound();
+            }
             return Ok();
         }
 
