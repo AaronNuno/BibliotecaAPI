@@ -3,6 +3,7 @@ using BibliotecaAPI.Entidades;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
+using System.Data.SqlTypes;
 using System.Diagnostics.CodeAnalysis;
 
 namespace BibliotecaAPI.Controllers
@@ -22,13 +23,20 @@ namespace BibliotecaAPI.Controllers
         public async Task<IEnumerable<Autor>> Get()
         {
             return await context.Autores.ToListAsync();
-        }
+        } 
 
-        [HttpGet("{parametro}/{parametro2?}")] //api/autores/aaron/nuno
+        [HttpGet("{nombre:alpha}")] 
+        public async Task<IEnumerable<Autor>> Get(string nombre)
+        {
+            return await context.Autores.Where(x => x.Nombre.Contains(nombre)).ToListAsync();
+        }
+        
+
+        /*[HttpGet("{parametro}/{parametro2?}")] //api/autores/aaron/nuno
         public ActionResult Get(string parametro, string? parametro2 )
         {
             return Ok(new {parametro,parametro2});
-        }
+        }*/
 
         [HttpGet("primero")] // api/autores/primero
         public async   Task<Autor> GetPrimerAutor()
