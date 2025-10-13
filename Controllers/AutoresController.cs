@@ -3,6 +3,7 @@ using BibliotecaAPI.Entidades;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.CodeAnalysis;
 
 namespace BibliotecaAPI.Controllers
 {
@@ -20,7 +21,12 @@ namespace BibliotecaAPI.Controllers
         {
             return await context.Autores.ToListAsync();
         }
+        [HttpGet("primero")] // api/autores/primero
+        public async   Task<Autor> GetPrimerAutor()
 
+        {
+            return await context.Autores.FirstAsync();
+        }
 
         [HttpGet("{id:int}")] // api/autores/id
         public async Task<ActionResult<Autor>>  Get(int id)
