@@ -16,11 +16,20 @@ namespace BibliotecaAPI.Controllers
         {
             this.context = context;
         }
-        [HttpGet]
+
+        [HttpGet("/listaAutores")] //lista atuores
+        [HttpGet]          //api/autores
         public async Task<IEnumerable<Autor>> Get()
         {
             return await context.Autores.ToListAsync();
         }
+
+        [HttpGet("{parametro}/{parametro2?}")] //api/autores/aaron/nuno
+        public ActionResult Get(string parametro, string? parametro2 )
+        {
+            return Ok(new {parametro,parametro2});
+        }
+
         [HttpGet("primero")] // api/autores/primero
         public async   Task<Autor> GetPrimerAutor()
 
@@ -64,7 +73,7 @@ namespace BibliotecaAPI.Controllers
         }
 
         [HttpDelete("{id:int}")] // api/autores/id
-        public async Task<ActionResult> Delete(int id)
+       public async Task<ActionResult> Delete(int id)
         {
             var registrosBorrados = await context.Autores.Where(x => x.Id == id).ExecuteDeleteAsync();
             if (registrosBorrados == 0)
