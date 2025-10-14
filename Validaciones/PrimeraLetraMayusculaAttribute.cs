@@ -15,7 +15,7 @@ namespace BibliotecaAPI.Validaciones
             
             if (primeraletra != primeraletra.ToUpper())
             {
-                return new ValidationResult("La primera letra debe de ser mayuscula");
+                return new ValidationResult("the first letter must be capitalized");
             }
             return ValidationResult.Success;
 
