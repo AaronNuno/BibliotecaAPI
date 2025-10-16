@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using System.Data.SqlTypes;
 using System.Diagnostics.CodeAnalysis;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BibliotecaAPI.Controllers
 {
@@ -43,7 +44,7 @@ namespace BibliotecaAPI.Controllers
 
 
 
-        [HttpGet("{id:int}")] // api/autores/id
+        [HttpGet("{id:int}", Name = "ObtenerAutor") ] // api/autores/id
         public async Task<ActionResult<Autor>>  Get(int id)
         {
             var autor = await context.Autores
@@ -62,7 +63,7 @@ namespace BibliotecaAPI.Controllers
         {
             context.Add(autor);
             await context.SaveChangesAsync();
-            return Ok();
+            return CreatedAtRoute("ObtenerAutor", new {id = autor.Id},autor);
         }
 
 
