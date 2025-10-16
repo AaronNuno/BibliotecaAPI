@@ -19,9 +19,6 @@ var app = builder.Build();
 
 // add middleware 
 
-app.UseLoguePeticion();
-app.UseBloquePeticion();
-
 
 // Log
 /* app.Use(async (contexto, next) =>
