@@ -19,9 +19,12 @@ var app = builder.Build();
 
 // add middleware 
 
+app.UseLoguePeticion();
+app.UseBloquePeticion();
+
 
 // Log
-app.Use(async (contexto, next) =>
+/* app.Use(async (contexto, next) =>
 {
     // Viene petición
     var logger = contexto.RequestServices.GetRequiredService<ILogger<Program>>();
@@ -46,7 +49,7 @@ app.Use(async (contexto, next) =>
         await next.Invoke();
     }
 
-});
+}); */
 
 
 app.MapControllers();
