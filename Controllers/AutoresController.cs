@@ -1,4 +1,5 @@
 ﻿using BibliotecaAPI.Datos;
+using BibliotecaAPI.DTOs;
 using BibliotecaAPI.Entidades;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
@@ -23,16 +24,18 @@ namespace BibliotecaAPI.Controllers
 
         [HttpGet("/listaAutores")] //lista atuores
         [HttpGet]          //api/autores
-        public async Task<IEnumerable<Autor>> Get()
+        public async Task<IEnumerable<AutorDTO>> Get()
         {
+            var autores = await context.Autores.ToListAsync();
 
-            return await context.Autores.ToListAsync();
+            var autoresDTO = autores.Select(autor => new AutorDTO { Id = autor.Id, NombreCompleto = $"{autor.Nombres} {autor.Apellidos}" });
+            return   autoresDTO;
         } 
 
         [HttpGet("{nombre:alpha}")] 
         public async Task<IEnumerable<Autor>> Get(string nombre)
         {
-            return await context.Autores.Where(x => x.Nombre.Contains(nombre)).ToListAsync();
+            return await context.Autores.Where(x => x.Nombres.Contains(nombre)).ToListAsync();
         }
         
 
