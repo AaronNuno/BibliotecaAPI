@@ -14,6 +14,9 @@ namespace BibliotecaAPI.Utilidades
                     opt => opt.MapFrom(autor => $"{autor.Nombres} {autor.Apellidos}")
                 );
             CreateMap<AutorCreacionDTO, Autor>();
+            CreateMap<Libro, LibroDTO>();
+            CreateMap<LibroCreacionDTO, Libro>();
         }
+
     }
 }
