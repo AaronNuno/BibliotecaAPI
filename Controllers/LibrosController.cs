@@ -89,7 +89,7 @@ namespace BibliotecaAPI.Controllers
 
             context.Update(libro);
             await context.SaveChangesAsync();   
-            return Ok();
+            return NoContent();
         }
 
 
@@ -101,7 +101,7 @@ namespace BibliotecaAPI.Controllers
             {
                 return NotFound();
             }
-            return Ok();
+            return NoContent();
 
         }
 
