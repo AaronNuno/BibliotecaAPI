@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BibliotecaAPI.Controllers;
 using BibliotecaAPI.DTOs;
 using BibliotecaAPI.Entidades;
 
@@ -29,6 +30,11 @@ namespace BibliotecaAPI.Utilidades
             CreateMap<Libro, LibroConAutorDTO>()
                 .ForMember(dto => dto.AutorNombre, config => 
                 config.MapFrom(ent => MapearNombreYApellidoAutor(ent.Autor!)));
+
+            CreateMap<ComentarioCreacionDTO, Comentario>();
+            CreateMap<Comentario, ComentarioDTO>();
+            CreateMap <ComentarioPatchDTO , Comentario>().ReverseMap();
+
         }
 
         private string MapearNombreYApellidoAutor(Autor autor) => $"{autor.Nombres} {autor.Apellidos}";
