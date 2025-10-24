@@ -12,7 +12,7 @@ namespace BibliotecaAPI.Entidades
         public required string Nombres { get; set; }
         public required string Apellidos { get; set; }
         public  string? Identificacion { get; set; }
-        public List<Libro> Libros { get; set; } = new List<Libro>();
+        public List<AutorLibro> Libros { get; set; } = [];
 
     }
 }

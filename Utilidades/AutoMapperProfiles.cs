@@ -27,9 +27,9 @@ namespace BibliotecaAPI.Utilidades
             CreateMap<Libro, LibroDTO>();
             CreateMap<LibroCreacionDTO, Libro>();
 
-            CreateMap<Libro, LibroConAutorDTO>()
+            /*CreateMap<Libro, LibroConAutorDTO>()
                 .ForMember(dto => dto.AutorNombre, config => 
-                config.MapFrom(ent => MapearNombreYApellidoAutor(ent.Autor!)));
+                config.MapFrom(ent => MapearNombreYApellidoAutor(ent.Autor!))); */
 
             CreateMap<ComentarioCreacionDTO, Comentario>();
             CreateMap<Comentario, ComentarioDTO>();

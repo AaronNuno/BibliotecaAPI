@@ -35,7 +35,7 @@ namespace BibliotecaAPI.Controllers
         public async Task<ActionResult<LibroConAutorDTO>> Get(int id)
         {
             var libro = await context.Libros
-                .Include(x => x.Autor)
+                .Include(x => x.Autores)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (libro == null)
@@ -50,7 +50,7 @@ namespace BibliotecaAPI.Controllers
         }
 
 
-        [HttpPost]  // api/libros
+       /* [HttpPost]  // api/libros
         public async Task<ActionResult<LibroDTO>> Post(LibroCreacionDTO libroCreacionDTO)
         {
             var libro = mapper.Map<Libro>(libroCreacionDTO);
@@ -90,7 +90,7 @@ namespace BibliotecaAPI.Controllers
             context.Update(libro);
             await context.SaveChangesAsync();   
             return NoContent();
-        }
+        } */
 
 
         [HttpDelete("{id:int}")]
