@@ -36,6 +36,7 @@ namespace BibliotecaAPI.Controllers
         {
             var libro = await context.Libros
                 .Include(x => x.Autores)
+                .ThenInclude(x => x.Autor)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (libro == null)
