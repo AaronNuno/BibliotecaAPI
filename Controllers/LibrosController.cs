@@ -50,24 +50,51 @@ namespace BibliotecaAPI.Controllers
         }
 
 
-       /* [HttpPost]  // api/libros
+      [HttpPost]  // api/libros
         public async Task<ActionResult<LibroDTO>> Post(LibroCreacionDTO libroCreacionDTO)
         {
-            var libro = mapper.Map<Libro>(libroCreacionDTO);
-
-            var existeAutor = await context.Autores.AnyAsync(x => x.Id == libro.AutorId);
-
-            if (!existeAutor)
+            if(libroCreacionDTO.AutoresIds is null || libroCreacionDTO.AutoresIds.Count == 0 )
             {
-                ModelState.AddModelError(nameof(libro.AutorId), $"El autor de id {libro.AutorId} no existe");
+                ModelState.AddModelError(nameof(libroCreacionDTO.AutoresIds),
+                    "No se puede crear un libro sin un autor");
                 return ValidationProblem();
             }
+
+
+            var autoresIdsExisten = await context.Autores
+                .Where(x => libroCreacionDTO.AutoresIds.Contains(x.Id))
+                .Select(x => x.Id).ToListAsync(); 
+
+            if (autoresIdsExisten.Count != libroCreacionDTO.AutoresIds.Count)
+            {
+                var autoresNoExisten = libroCreacionDTO.AutoresIds.Except(autoresIdsExisten);
+                var autoresNoExistenString = string.Join(",", autoresNoExisten);
+                var mensajeDeError = $"Los siguientes autores no existen: {autoresNoExistenString}";
+                ModelState.AddModelError(nameof(libroCreacionDTO.AutoresIds), mensajeDeError);
+                return ValidationProblem();
+
+            }
+
+            var libro = mapper.Map<Libro>(libroCreacionDTO);
+            AsignarOrdenAutores(libro);
+
             context.Add(libro);
             await context.SaveChangesAsync();
 
             var libroDTO = mapper.Map<LibroDTO>(libro);
 
             return CreatedAtRoute("ObtenerLibro", new  { id = libro.Id }, libroDTO);
+        }
+
+        private void AsignarOrdenAutores(Libro libro)
+        {
+            if(libro.Autores is not null)
+            {
+                for (int i =0; i < libro.Autores.Count; i++)
+                {
+                    libro.Autores[i].orden = i;
+                }
+            }
         }
 
 
@@ -90,7 +117,7 @@ namespace BibliotecaAPI.Controllers
             context.Update(libro);
             await context.SaveChangesAsync();   
             return NoContent();
-        } */
+        } 
 
 
         [HttpDelete("{id:int}")]
