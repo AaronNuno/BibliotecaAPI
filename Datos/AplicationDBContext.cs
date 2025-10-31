@@ -1,9 +1,10 @@
 ﻿using BibliotecaAPI.Entidades;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace BibliotecaAPI.Datos
 {
-    public class AplicationDBContext : DbContext
+    public class AplicationDBContext : IdentityDbContext
 
     {
            public AplicationDBContext(DbContextOptions options) : base(options)
