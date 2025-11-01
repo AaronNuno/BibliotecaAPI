@@ -17,13 +17,17 @@ namespace BibliotecaAPI.Controllers
     {
         private readonly UserManager<IdentityUser> userManager;
         private readonly IConfiguration configuration;
-  
+        private readonly SignInManager<IdentityUser> singInManager;
 
-        public UsuarioController(UserManager<IdentityUser> userManager, IConfiguration configuration)
+        public UsuarioController(UserManager<IdentityUser> userManager, IConfiguration configuration,
+            SignInManager<IdentityUser> singInManager)
         {
             this.userManager = userManager;
             this.configuration = configuration;
+            this.singInManager = singInManager;
         }
+
+
         [HttpPost("registro")]
         [AllowAnonymous]
         public async Task<ActionResult<RespuestaAutentificacionDTO>> Registrar(CredencialesUsuarioDTO credencialesUsuarioDTO)
@@ -53,6 +57,38 @@ namespace BibliotecaAPI.Controllers
 
             }
 
+        }
+
+        [HttpPost("login")]
+        [AllowAnonymous]
+        public async Task<ActionResult<RespuestaAutentificacionDTO>> Login(
+            CredencialesUsuarioDTO credencialesUsuarioDTO)
+        {
+            var usuario = await userManager.FindByEmailAsync(credencialesUsuarioDTO.Email);
+
+            if (usuario is null)
+            {
+                return RetornarLoginIncorrecto();
+
+            }
+            var resultado = await singInManager.CheckPasswordSignInAsync(
+                usuario, credencialesUsuarioDTO.Password!, lockoutOnFailure: false);
+
+            if (resultado.Succeeded)
+            {
+                return await ConstruirToken(credencialesUsuarioDTO);
+            }
+            else
+            { 
+                return RetornarLoginIncorrecto(); 
+            }
+
+        }
+
+        private ActionResult RetornarLoginIncorrecto()
+        {
+            ModelState.AddModelError(string.Empty, "Login incorrecto");
+            return ValidationProblem();
         }
 
         private async Task<RespuestaAutentificacionDTO> ConstruirToken(
