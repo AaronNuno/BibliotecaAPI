@@ -34,6 +34,7 @@ namespace BibliotecaAPI.Controllers
             }
 
             var comentarios = await context.Comentarios
+                .Include(x=> x.Usuario)    
                 .Where(x => x.LibroId == libroId)
                 .OrderByDescending(x => x.FechaPublicacion)
                 .ToListAsync();
@@ -45,7 +46,9 @@ namespace BibliotecaAPI.Controllers
         [HttpGet("{id}", Name = "ObetenerComentario")]
         public async Task<ActionResult<ComentarioDTO>> Get (Guid id)
         {
-            var comentario = await context.Comentarios.FirstOrDefaultAsync(x => x.Id == id);
+            var comentario = await context.Comentarios
+                .Include (x=> x.Usuario)
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             if (comentario is null)
             {
