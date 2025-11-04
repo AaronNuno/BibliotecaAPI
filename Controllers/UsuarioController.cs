@@ -1,4 +1,5 @@
 ﻿using BibliotecaAPI.DTOs;
+using BibliotecaAPI.Servicios;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -18,13 +19,15 @@ namespace BibliotecaAPI.Controllers
         private readonly UserManager<IdentityUser> userManager;
         private readonly IConfiguration configuration;
         private readonly SignInManager<IdentityUser> singInManager;
+        private readonly IServiciosUsuarios serviciosUsuarios;
 
         public UsuarioController(UserManager<IdentityUser> userManager, IConfiguration configuration,
-            SignInManager<IdentityUser> singInManager)
+            SignInManager<IdentityUser> singInManager, IServiciosUsuarios serviciosUsuarios)
         {
             this.userManager = userManager;
             this.configuration = configuration;
             this.singInManager = singInManager;
+            this.serviciosUsuarios = serviciosUsuarios;
         }
 
 
@@ -57,6 +60,23 @@ namespace BibliotecaAPI.Controllers
 
             }
 
+        }
+
+        [HttpGet("renovar-token")]
+        public async Task<ActionResult<RespuestaAutentificacionDTO>> RenovarToken()
+        {
+            var usuario = await serviciosUsuarios.ObetenerUsuario();
+
+            if (usuario is null)
+            {
+                return NotFound();
+            }
+
+            var credencialesUsuarioDTO = new CredencialesUsuarioDTO { Email = usuario.Email! };
+
+            var respuestaAutenticacion = await ConstruirToken(credencialesUsuarioDTO);
+
+            return respuestaAutenticacion;
         }
 
         [HttpPost("login")]
