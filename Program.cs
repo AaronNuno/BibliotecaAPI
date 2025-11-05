@@ -49,6 +49,11 @@ builder.Services.AddAuthentication().AddJwtBearer(opciones =>
 
 });
 
+builder.Services.AddAuthorization(opciones =>
+{
+    opciones.AddPolicy("esadmin", politca => politca.RequireClaim("esadmin"));
+});
+
 
 
 var app = builder.Build();
