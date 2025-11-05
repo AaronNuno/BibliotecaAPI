@@ -1,9 +1,12 @@
-﻿using BibliotecaAPI.DTOs;
+﻿using AutoMapper;
+using BibliotecaAPI.Datos;
+using BibliotecaAPI.DTOs;
 using BibliotecaAPI.Entidades;
 using BibliotecaAPI.Servicios;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
@@ -22,14 +25,31 @@ namespace BibliotecaAPI.Controllers
         private readonly IConfiguration configuration;
         private readonly SignInManager<Usuario> singInManager;
         private readonly IServiciosUsuarios serviciosUsuarios;
+        private readonly AplicationDBContext context;
+        private readonly IMapper mapper;
 
         public UsuarioController(UserManager<Usuario> userManager, IConfiguration configuration,
-            SignInManager<Usuario> singInManager, IServiciosUsuarios serviciosUsuarios)
+            SignInManager<Usuario> singInManager, IServiciosUsuarios serviciosUsuarios, AplicationDBContext context ,
+            IMapper mapper)
         {
             this.userManager = userManager;
             this.configuration = configuration;
             this.singInManager = singInManager;
             this.serviciosUsuarios = serviciosUsuarios;
+            this.context = context;
+            this.mapper = mapper;
+        }
+
+        [HttpGet]
+        [Authorize (Policy ="esadmin")]
+
+        public async Task<IEnumerable<UsuarioDTO>> Get()
+        {
+            var usuarios = await context.Users.ToListAsync();
+            var usuarioDTO = mapper.Map<IEnumerable<UsuarioDTO>>(usuarios);
+            return usuarioDTO;
+
+
         }
 
 
@@ -79,6 +99,7 @@ namespace BibliotecaAPI.Controllers
             await userManager.UpdateAsync(usuario);
             return NoContent();
         }
+
 
         [HttpGet("renovar-token")]
         [Authorize]
