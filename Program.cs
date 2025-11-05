@@ -13,6 +13,16 @@ using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 
 //add services to the container
+
+var origenesPermitidos = builder.Configuration.GetSection("origenesPermitidos").Get<string[]>()!;
+
+builder.Services.AddCors(opciones=>
+{
+    opciones.AddDefaultPolicy(opcionesCORS =>
+    opcionesCORS.WithOrigins(origenesPermitidos).AllowAnyMethod().AllowAnyHeader());
+}
+    );
+
 builder.Services.AddAutoMapper(typeof(Program));
 
 builder.Services.AddControllers().AddNewtonsoftJson();
@@ -60,6 +70,8 @@ builder.Services.AddAuthorization(opciones =>
 var app = builder.Build();
 
 // add middleware 
+
+app.UseCors();
 
 
 app.MapControllers();
