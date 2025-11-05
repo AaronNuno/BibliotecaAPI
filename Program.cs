@@ -1,5 +1,6 @@
 using BibliotecaAPI;
 using BibliotecaAPI.Datos;
+using BibliotecaAPI.Entidades;
 using BibliotecaAPI.Servicios;
 using BibliotecaAPI.Utilidades;
 using Microsoft.AspNetCore.Identity;
@@ -20,12 +21,12 @@ builder.Services.AddDbContext<AplicationDBContext>(options =>
     options.UseSqlServer("name=DefaultConnection"));
 
 
-builder.Services.AddIdentityCore<IdentityUser>()
+builder.Services.AddIdentityCore<Usuario>()
     .AddEntityFrameworkStores<AplicationDBContext>()
     .AddDefaultTokenProviders();
 
-builder.Services.AddScoped<UserManager<IdentityUser>>();
-builder.Services.AddScoped<SignInManager<IdentityUser>>();
+builder.Services.AddScoped<UserManager<Usuario>>();
+builder.Services.AddScoped<SignInManager<Usuario>>();
 builder.Services.AddTransient<IServiciosUsuarios, ServiciosUsuarios>();
 
 

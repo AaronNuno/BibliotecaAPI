@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BibliotecaAPI.Datos
 {
-    public class AplicationDBContext : IdentityDbContext
+    public class AplicationDBContext : IdentityDbContext<Usuario>
 
     {
            public AplicationDBContext(DbContextOptions options) : base(options)
@@ -15,6 +15,8 @@ namespace BibliotecaAPI.Datos
         public DbSet<Libro> Libros { get; set; }
         public DbSet<Comentario> Comentarios { get; set; }
         public DbSet<AutorLibro> AutoresLibros { get; set; }
+
+
  
     }
 }
