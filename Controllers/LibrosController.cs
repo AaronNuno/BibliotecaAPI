@@ -17,50 +17,19 @@ namespace BibliotecaAPI.Controllers
     {
         private readonly AplicationDBContext context;
         private readonly IMapper mapper;
-        private readonly ITimeLimitedDataProtector protectorLimitadoPorTiempo;
 
-        public LibrosController(AplicationDBContext context, IMapper mapper, IDataProtectionProvider protectionProvider)
+
+        public LibrosController(AplicationDBContext context, IMapper mapper)
         {
             this.context = context;
             this.mapper = mapper;
-            protectorLimitadoPorTiempo = protectionProvider.CreateProtector("LibrosController").ToTimeLimitedDataProtector();
+            
         }
-
-
-        [HttpGet("listado/obtener-token")]
-        public ActionResult ObtenerTokenListado()
-        {
-            var textoPlano = Guid.NewGuid().ToString();
-            var token = protectorLimitadoPorTiempo.Protect(textoPlano, lifetime: TimeSpan.FromSeconds(30));
-            var url = Url.RouteUrl("ObtenerListadoLibrosusandoToken", new { token }, "https");
-            return Ok(new { url });
-        }
-
-        [HttpGet("listado/{token}",Name ="ObtenerListadoLibrosUsandoToken")]
-        [AllowAnonymous]
-        public async Task<ActionResult<LibroDTO>> ObeterListadoUsandoToken(string token)
-        {
-            try
-            {
-                protectorLimitadoPorTiempo.Unprotect(token);
-            }
-            catch
-            {
-                ModelState.AddModelError(nameof(token), "El Token ha expriado");
-                return ValidationProblem();
-
-            }
-
-            var libros = await context.Libros.ToListAsync();
-            var libroDTO = mapper.Map<IEnumerable<LibroDTO>>(libros);
-            return Ok(libroDTO);
-
-        }
-
 
 
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IEnumerable<LibroDTO>> Get()
         {
             var libros =  await context.Libros.ToListAsync();
@@ -70,6 +39,7 @@ namespace BibliotecaAPI.Controllers
 
 
         [HttpGet("{id:int}", Name = "ObtenerLibro")] // api/libros/id
+        [AllowAnonymous]
         public async Task<ActionResult<LibroConAutorDTO>> Get(int id)
         {
             var libro = await context.Libros
