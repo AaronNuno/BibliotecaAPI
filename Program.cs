@@ -70,12 +70,15 @@ builder.Services.AddAuthorization(opciones =>
     opciones.AddPolicy("esadmin", politca => politca.RequireClaim("esadmin"));
 });
 
+builder.Services.AddSwaggerGen();
+
 
 
 var app = builder.Build();
 
 // add middleware 
-
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseCors();
 
