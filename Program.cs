@@ -70,7 +70,25 @@ builder.Services.AddAuthorization(opciones =>
     opciones.AddPolicy("esadmin", politca => politca.RequireClaim("esadmin"));
 });
 
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(opciones =>
+{
+    opciones.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "Biblioteca API",
+        Description = "Este es un API para trabajar con datos de autores y libros",
+        Contact = new Microsoft.OpenApi.Models.OpenApiContact
+        {
+            Email = "aaron_a_7@hotmail.com",
+            Name = "Aaron Nuno",
+            Url = new Uri("https://www.linkedin.com/in/aaron-hern%C3%A1ndez-637378107/")
+        },
+        License = new Microsoft.OpenApi.Models.OpenApiLicense
+        {
+            Name = "MIT",
+            Url = new Uri("https://mit-license.org/")
+        }
+    });
+});
 
 
 
