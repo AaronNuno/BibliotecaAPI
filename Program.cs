@@ -14,6 +14,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 //add services to the container
 
+builder.Services.AddDataProtection();
+
 var origenesPermitidos = builder.Configuration.GetSection("origenesPermitidos").Get<string[]>()!;
 
 builder.Services.AddCors(opciones=>
