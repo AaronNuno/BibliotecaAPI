@@ -1,29 +1,38 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="es">
 <head>
-    <meta charset="utf-8" />
-    <title></title>
+  <meta charset="utf-8" />
+  <title>Prueba CORS del Web API</title>
 </head>
-
 <body>
-    <h1>Prueba CORS del Web API (presionar F12)</h1>
-    <script>
-        const urlWebAPI = 'https://localhost:7207/api/autores';
-        consumirWebAPI();
-        async function consumirWebAPI() {
+  <h1>Prueba CORS del Web API (presiona F12 para ver la consola)</h1>
+  <script>
+    const urlWebAPI = 'https://localhost:7207/api/autores';
+    consumirWebAPI();
 
-            const respuesta = await fetch(urlWebAPI, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
+    async function consumirWebAPI() {
+      try {
+        const respuesta = await fetch(urlWebAPI, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
 
-            const json = await respuesta.text();
-            console.log(json);
-        }
-    </script>
+        // Mostrar el cuerpo de la respuesta
+        const json = await respuesta.text();
+        console.log("Respuesta del servidor:");
+        console.log(json);
+
+        // Obtener los encabezados correctamente
+        const cabeceras = Array.from(respuesta.headers.entries());
+        console.log("Encabezados HTTP:");
+        console.log(cabeceras);
+
+      } catch (error) {
+        console.error("Error al consumir la API:", error);
+      }
+    }
+  </script>
 </body>
-
 </html>
