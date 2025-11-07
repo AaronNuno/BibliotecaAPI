@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
 namespace BibliotecaAPI.Entidades
@@ -13,6 +14,8 @@ namespace BibliotecaAPI.Entidades
         public required string Apellidos { get; set; }
         public  string? Identificacion { get; set; }
         public List<AutorLibro> Libros { get; set; } = [];
+        [Unicode(false)]
+        public string? Foto { get; set; }
 
     }
 }
