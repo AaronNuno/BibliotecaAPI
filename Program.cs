@@ -2,6 +2,7 @@ using BibliotecaAPI;
 using BibliotecaAPI.Datos;
 using BibliotecaAPI.Entidades;
 using BibliotecaAPI.Servicios;
+using BibliotecaAPI.Swagger;
 using BibliotecaAPI.Utilidades;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -100,7 +101,9 @@ opciones.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
         In = ParameterLocation.Header
     });
 
-    opciones.AddSecurityRequirement(new OpenApiSecurityRequirement
+    opciones.OperationFilter<FiltroAutorizacion>();
+
+   /* opciones.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
         new OpenApiSecurityScheme
@@ -114,7 +117,7 @@ opciones.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
             new string[]{}
 
         }
-    });
+    }); */
 
 });
 
