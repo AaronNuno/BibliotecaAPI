@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -72,7 +73,8 @@ builder.Services.AddAuthorization(opciones =>
 
 builder.Services.AddSwaggerGen(opciones =>
 {
-    opciones.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+opciones.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+ 
     {
         Title = "Biblioteca API",
         Description = "Este es un API para trabajar con datos de autores y libros",
@@ -88,7 +90,37 @@ builder.Services.AddSwaggerGen(opciones =>
             Url = new Uri("https://mit-license.org/")
         }
     });
+
+    opciones.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header
+    });
+
+    opciones.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+        new OpenApiSecurityScheme
+        {
+            Reference = new OpenApiReference
+            {
+                Type= ReferenceType.SecurityScheme,
+                Id= "Bearer"
+            }
+        },
+            new string[]{}
+
+        }
+    });
+
 });
+
+
+
+
 
 
 
