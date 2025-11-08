@@ -3,7 +3,7 @@
     public interface IAlmacenadorArchivos
     {
         Task Borrar(string? ruta, string contenedor);
-        Task<string> Almacenar(string contenedot, IFormFile archivo);
+        Task<string> Almacenar(string contenedor, IFormFile archivo);
         async Task<string> Editar (string? ruta, string contenedor, IFormFile archivo)
         {
             await Borrar(ruta, contenedor);

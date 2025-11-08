@@ -95,6 +95,7 @@ namespace BibliotecaAPI.Controllers
 
 
         [HttpPost("con-foto")]
+    
         public async Task<ActionResult> PostConFoto([FromForm]AutorCreacionDTOConFoto autorCreacionDTO)
         {
             var autor = mapper.Map<Autor>(autorCreacionDTO);
