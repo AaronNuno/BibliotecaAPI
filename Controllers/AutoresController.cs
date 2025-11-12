@@ -12,8 +12,10 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
 using System.Data.SqlTypes;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection.Metadata;
 using System.Text.Json;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Linq.Dynamic.Core;
 
 namespace BibliotecaAPI.Controllers
 {
@@ -25,13 +27,16 @@ namespace BibliotecaAPI.Controllers
         private readonly AplicationDBContext context;
         private readonly IMapper mapper;
         private readonly IAlmacenadorArchivos almacenadorArchivos;
+        private readonly ILogger<AutoresController> logger;
         private const string contenedor = "autores";
 
-        public AutoresController(AplicationDBContext context, IMapper mapper, IAlmacenadorArchivos almacenadorArchivos)
+        public AutoresController(AplicationDBContext context, IMapper mapper, IAlmacenadorArchivos almacenadorArchivos
+                                  ,ILogger<AutoresController> logger)
         {
             this.context = context;
             this.mapper = mapper;
             this.almacenadorArchivos = almacenadorArchivos;
+            this.logger = logger;
         }
 
         [HttpGet("/listaAutores")] //lista atuores
@@ -81,6 +86,94 @@ namespace BibliotecaAPI.Controllers
             var autorDTO = mapper.Map<AutorConLibrosDTO>(autor);
             return autorDTO;
         }
+
+        [HttpGet("filtrar")]
+        [AllowAnonymous]
+        public async Task<ActionResult> Filtrar([FromQuery] AutorFiltroDTO autorFiltroDTO)
+        {
+            var queryable = context.Autores.AsQueryable();
+
+            if (!string.IsNullOrEmpty(autorFiltroDTO.Nombres))
+            {
+                queryable = queryable.Where(x => x.Nombres.Contains(autorFiltroDTO.Nombres));
+            }
+
+            if (!string.IsNullOrEmpty(autorFiltroDTO.Apellidos))
+            {
+                queryable = queryable.Where(x => x.Apellidos.Contains(autorFiltroDTO.Apellidos));
+            }
+
+            if (autorFiltroDTO.IncluirLibros)
+            {
+                queryable = queryable.Include(x => x.Libros).ThenInclude(x => x.Libro);
+            }
+
+            if (autorFiltroDTO.TieneFoto.HasValue)
+            {
+                if (autorFiltroDTO.TieneFoto.Value)
+                {
+                    queryable = queryable.Where(x => x.Foto != null);
+                }
+                else
+                {
+                    queryable = queryable.Where(x => x.Foto == null);
+                }
+            }
+
+            if (autorFiltroDTO.TieneLibros.HasValue)
+            {
+                if (autorFiltroDTO.TieneLibros.Value)
+                {
+                    queryable = queryable.Where(x => x.Libros.Any());
+                }
+                else
+                {
+                    queryable = queryable.Where(x => !x.Libros.Any());
+                }
+            }
+
+            if (!string.IsNullOrEmpty(autorFiltroDTO.TituloLibro))
+            {
+                queryable = queryable.Where(x =>
+                    x.Libros.Any(y => y.Libro!.Titulo.Contains(autorFiltroDTO.TituloLibro)));
+            }
+
+            if (!string.IsNullOrEmpty(autorFiltroDTO.CampoOrdenar))
+            {
+                var tipoOrden = autorFiltroDTO.OrdenAscendente ? "ascending" : "descending";
+
+                try
+                {
+                    queryable = queryable.OrderBy($"{autorFiltroDTO.CampoOrdenar} {tipoOrden}");
+                }
+                catch (Exception ex)
+                {
+                    queryable = queryable.OrderBy(x => x.Nombres);
+                    logger.LogError(ex.Message, ex);
+                }
+            }
+            else
+            {
+                queryable = queryable.OrderBy(x => x.Nombres);
+            }
+
+            var autores = await queryable
+                    .Paginar(autorFiltroDTO.PaginacionDTO).ToListAsync();
+
+            if (autorFiltroDTO.IncluirLibros)
+            {
+                var autoresDTO = mapper.Map<IEnumerable<AutorConLibrosDTO>>(autores);
+                return Ok(autoresDTO);
+            }
+            else
+            {
+                var autoresDTO = mapper.Map<IEnumerable<AutorDTO>>(autores);
+                return Ok(autoresDTO);
+            }
+
+        }
+
+
 
 
         [HttpPost]
