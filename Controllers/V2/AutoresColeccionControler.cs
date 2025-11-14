@@ -7,10 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
-namespace BibliotecaAPI.Controllers
+namespace BibliotecaAPI.Controllers.V1
 {
     [ApiController]
-    [Route("api/autores-coleccion")]
+    [Route("api/V2/autores-coleccion")]
     [Authorize(Policy = "esadmin")]
     public class AutoresColeccionControler: ControllerBase
     {
@@ -22,7 +22,7 @@ namespace BibliotecaAPI.Controllers
             this.context = context;
             this.mapper = mapper;
         }
-        [HttpGet("{ids}", Name = "ObetenerAutoresPorIds")]
+        [HttpGet("{ids}", Name = "ObetenerAutoresPorIdsV2")]
         public async Task<ActionResult<List<AutorConLibrosDTO>>> Get(string ids)
         {
             var idsColeccion = new List<int>();
@@ -67,7 +67,7 @@ namespace BibliotecaAPI.Controllers
             var ids = autores.Select(x => x.Id);
             var idsString = string.Join(",", ids);
 
-            return CreatedAtRoute("ObetenerAutoresPorIds", new { ids = idsString }, autoresDTO);
+            return CreatedAtRoute("ObetenerAutoresPorIdsV2", new { ids = idsString }, autoresDTO);
             
         }
 

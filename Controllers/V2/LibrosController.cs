@@ -9,10 +9,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.EntityFrameworkCore;
 
-namespace BibliotecaAPI.Controllers
+namespace BibliotecaAPI.Controllers.V2
 {
     [ApiController]
-    [Route("api/libros")]
+    [Route("api/V2/libros")]
     [Authorize(Policy = "esadmin")]
 
     public class LibrosController : ControllerBase
@@ -44,7 +44,7 @@ namespace BibliotecaAPI.Controllers
         }
 
 
-        [HttpGet("{id:int}", Name = "ObtenerLibro")] // api/libros/id
+        [HttpGet("{id:int}", Name = "ObtenerLibroV2")] // api/libros/id
         [AllowAnonymous]
         [OutputCache(Tags = [cache])]
         public async Task<ActionResult<LibroConAutorDTO>> Get(int id)
@@ -81,7 +81,7 @@ namespace BibliotecaAPI.Controllers
 
             var libroDTO = mapper.Map<LibroDTO>(libro);
 
-            return CreatedAtRoute("ObtenerLibro", new  { id = libro.Id }, libroDTO);
+            return CreatedAtRoute("ObtenerLibroV2", new  { id = libro.Id }, libroDTO);
         }
 
         private void AsignarOrdenAutores(Libro libro)

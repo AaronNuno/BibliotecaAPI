@@ -18,10 +18,10 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Linq.Dynamic.Core;
 using Microsoft.AspNetCore.OutputCaching;
 
-namespace BibliotecaAPI.Controllers
+namespace BibliotecaAPI.Controllers.V2
 {
     [ApiController]
-    [Route("api/autores")]
+    [Route("api/V2/autores")]
     [Authorize(Policy = "esadmin")]
     [FiltroAgregarCabecera("controlador","autores")]
     public class AutoresController : ControllerBase
@@ -52,7 +52,7 @@ namespace BibliotecaAPI.Controllers
         [FiltroAgregarCabecera("accion", "obtener-autores")]
         public async Task<IEnumerable<AutorDTO>> Get([FromQuery]  PaginacionDTO paginacionDTO)
         {
-            throw new NotImplementedException();
+          
 
             var queryable =  context.Autores.AsQueryable();
             await HttpContext.InsertarParametrosPaginacionEnCabecera(queryable);
@@ -78,7 +78,7 @@ namespace BibliotecaAPI.Controllers
 
 
 
-        [HttpGet("{id:int}", Name = "ObtenerAutor")] // api/autores/id
+        [HttpGet("{id:int}", Name = "ObtenerAutorV2")] // api/autores/id
         [AllowAnonymous]
         [EndpointSummary("Obtiene Autor por ID")]
         [EndpointDescription("Obtiene un autor por su ID. Incluye sus libros. Si el autor no existe, se retorna 404")]
@@ -87,12 +87,20 @@ namespace BibliotecaAPI.Controllers
        // [OutputCache(Tags = [cache])]
 
 
-        public async Task<ActionResult<AutorConLibrosDTO>> Get([Description("El ID del Autor")]int id)
+        public async Task<ActionResult<AutorConLibrosDTO>> Get([Description("El ID del Autor")]int id,bool incluirLibros = false)
         {
-            var autor = await context.Autores
-                .Include(x => x.Libros)
-                .ThenInclude(x => x.Libro)
-                .FirstOrDefaultAsync(x => x.Id == id);
+            var queryable =  context.Autores.AsQueryable();
+
+            if(incluirLibros)
+            {
+                queryable = queryable.Include(x => x.Libros)
+                .ThenInclude(x => x.Libro);
+            }
+
+
+                
+               var autor =  await queryable.FirstOrDefaultAsync(x => x.Id == id);
+
             if (autor is null)
             {
                 return NotFound();
@@ -199,7 +207,7 @@ namespace BibliotecaAPI.Controllers
             await context.SaveChangesAsync();
             await outputCacheStore.EvictByTagAsync(cache, default);
             var autorDTO = mapper.Map<AutorDTO>(autor);
-            return CreatedAtRoute("ObtenerAutor", new { id = autor.Id }, autorDTO);
+            return CreatedAtRoute("ObtenerAutorV2", new { id = autor.Id }, autorDTO);
         }
 
 
@@ -220,7 +228,7 @@ namespace BibliotecaAPI.Controllers
             await outputCacheStore.EvictByTagAsync(cache, default);
 
             var autorDTO = mapper.Map<AutorDTO>(autor);
-            return CreatedAtRoute("ObtenerAutor", new { id = autor.Id }, autorDTO);
+            return CreatedAtRoute("ObtenerAutorV2", new { id = autor.Id }, autorDTO);
         }
 
 
