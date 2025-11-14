@@ -4,6 +4,7 @@ using BibliotecaAPI.Entidades;
 using BibliotecaAPI.Servicios;
 using BibliotecaAPI.Swagger;
 using BibliotecaAPI.Utilidades;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -146,6 +147,30 @@ opciones.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
 var app = builder.Build();
 
 // add middleware 
+
+app.UseExceptionHandler(exceptionHandlerApp => exceptionHandlerApp.Run(async context =>
+    {
+        var exceptionHandlerFeature = context.Features.Get<IExceptionHandlerFeature>();
+        var excepcion = exceptionHandlerFeature?.Error!;
+
+        var error = new Error()
+        {
+            MensajeDeError = excepcion.Message,
+            StrackTrace = excepcion.StackTrace,
+            Fecha = DateTime.UtcNow
+        };
+
+        var dbContext = context.RequestServices.GetRequiredService<AplicationDBContext>();
+        dbContext.Add(error);
+        await dbContext.SaveChangesAsync();
+        await Results.InternalServerError( new
+        {
+            Tipo = "error",
+            mensaje = "Ha ocurrido un error inesperado",
+            estatus = 500
+        }).ExecuteAsync (context);
+    }));
+
 app.UseSwagger();
 app.UseSwaggerUI();
 
