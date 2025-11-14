@@ -41,7 +41,10 @@ builder.Services.AddCors(opciones=>
 
 builder.Services.AddAutoMapper(typeof(Program));
 
-builder.Services.AddControllers().AddNewtonsoftJson();
+builder.Services.AddControllers(opciones=>
+{
+    opciones.Filters.Add<FiltroTiempoEjecucion>();
+}).AddNewtonsoftJson();
 
 builder.Services.AddDbContext<AplicationDBContext>(options =>
     options.UseSqlServer("name=DefaultConnection"));

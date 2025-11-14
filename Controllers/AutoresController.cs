@@ -47,7 +47,7 @@ namespace BibliotecaAPI.Controllers
     
         [HttpGet]          //api/autores
         [AllowAnonymous]
-        [OutputCache(Tags =[cache])]
+       // [OutputCache(Tags =[cache])]
         [ServiceFilter<MiFiltroDeAccion>()]
         [FiltroAgregarCabecera("accion", "obtener-autores")]
         public async Task<IEnumerable<AutorDTO>> Get([FromQuery]  PaginacionDTO paginacionDTO)
@@ -61,7 +61,7 @@ namespace BibliotecaAPI.Controllers
         }
 
         [HttpGet("{nombre:alpha}")]
-        [OutputCache(Tags = [cache])]
+       // [OutputCache(Tags = [cache])]
         public async Task<IEnumerable<Autor>> Get(string nombre)
         {
             return await context.Autores.Where(x => x.Nombres.Contains(nombre)).ToListAsync();
@@ -82,7 +82,7 @@ namespace BibliotecaAPI.Controllers
         [EndpointDescription("Obtiene un autor por su ID. Incluye sus libros. Si el autor no existe, se retorna 404")]
         [ProducesResponseType<AutorConLibrosDTO>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [OutputCache(Tags = [cache])]
+       // [OutputCache(Tags = [cache])]
 
 
         public async Task<ActionResult<AutorConLibrosDTO>> Get([Description("El ID del Autor")]int id)
@@ -101,7 +101,7 @@ namespace BibliotecaAPI.Controllers
 
         [HttpGet("filtrar")]
         [AllowAnonymous]
-        [OutputCache(Tags = [cache])]
+       // [OutputCache(Tags = [cache])]
         public async Task<ActionResult> Filtrar([FromQuery] AutorFiltroDTO autorFiltroDTO)
         {
             var queryable = context.Autores.AsQueryable();
