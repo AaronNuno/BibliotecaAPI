@@ -16,6 +16,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 //add services to the container
 
+builder.Services.AddOutputCache(opciones =>
+{
+    opciones.DefaultExpirationTimeSpan = TimeSpan.FromSeconds(15);
+});
+
 builder.Services.AddDataProtection();
 
 var origenesPermitidos = builder.Configuration.GetSection("origenesPermitidos").Get<string[]>()!;
@@ -133,6 +138,8 @@ var app = builder.Build();
 // add middleware 
 app.UseSwagger();
 app.UseSwaggerUI();
+
+app.UseStaticFiles();
 
 app.UseCors();
 

@@ -16,6 +16,7 @@ using System.Reflection.Metadata;
 using System.Text.Json;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Linq.Dynamic.Core;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace BibliotecaAPI.Controllers
 {
@@ -28,20 +29,24 @@ namespace BibliotecaAPI.Controllers
         private readonly IMapper mapper;
         private readonly IAlmacenadorArchivos almacenadorArchivos;
         private readonly ILogger<AutoresController> logger;
+        private readonly IOutputCacheStore outputCacheStore;
         private const string contenedor = "autores";
+        private const string cache = "autores-obtener";
 
         public AutoresController(AplicationDBContext context, IMapper mapper, IAlmacenadorArchivos almacenadorArchivos
-                                  ,ILogger<AutoresController> logger)
+                                  ,ILogger<AutoresController> logger,IOutputCacheStore outputCacheStore)
         {
             this.context = context;
             this.mapper = mapper;
             this.almacenadorArchivos = almacenadorArchivos;
             this.logger = logger;
+            this.outputCacheStore = outputCacheStore;
         }
 
         [HttpGet("/listaAutores")] //lista atuores
         [HttpGet]          //api/autores
         [AllowAnonymous]
+        [OutputCache(Tags =[cache])]
         public async Task<IEnumerable<AutorDTO>> Get([FromQuery]  PaginacionDTO paginacionDTO)
         {
             var queryable =  context.Autores.AsQueryable();
@@ -53,6 +58,7 @@ namespace BibliotecaAPI.Controllers
         }
 
         [HttpGet("{nombre:alpha}")]
+        [OutputCache(Tags = [cache])]
         public async Task<IEnumerable<Autor>> Get(string nombre)
         {
             return await context.Autores.Where(x => x.Nombres.Contains(nombre)).ToListAsync();
@@ -73,6 +79,9 @@ namespace BibliotecaAPI.Controllers
         [EndpointDescription("Obtiene un autor por su ID. Incluye sus libros. Si el autor no existe, se retorna 404")]
         [ProducesResponseType<AutorConLibrosDTO>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [OutputCache(Tags = [cache])]
+
+
         public async Task<ActionResult<AutorConLibrosDTO>> Get([Description("El ID del Autor")]int id)
         {
             var autor = await context.Autores
@@ -89,6 +98,7 @@ namespace BibliotecaAPI.Controllers
 
         [HttpGet("filtrar")]
         [AllowAnonymous]
+        [OutputCache(Tags = [cache])]
         public async Task<ActionResult> Filtrar([FromQuery] AutorFiltroDTO autorFiltroDTO)
         {
             var queryable = context.Autores.AsQueryable();
@@ -182,6 +192,7 @@ namespace BibliotecaAPI.Controllers
             var autor = mapper.Map<Autor>(autorCreacionDTO);
             context.Add(autor);
             await context.SaveChangesAsync();
+            await outputCacheStore.EvictByTagAsync(cache, default);
             var autorDTO = mapper.Map<AutorDTO>(autor);
             return CreatedAtRoute("ObtenerAutor", new { id = autor.Id }, autorDTO);
         }
@@ -201,6 +212,8 @@ namespace BibliotecaAPI.Controllers
 
             context.Add(autor);
             await context.SaveChangesAsync();
+            await outputCacheStore.EvictByTagAsync(cache, default);
+
             var autorDTO = mapper.Map<AutorDTO>(autor);
             return CreatedAtRoute("ObtenerAutor", new { id = autor.Id }, autorDTO);
         }
@@ -232,6 +245,7 @@ namespace BibliotecaAPI.Controllers
 
             context.Update(autor);
             await context.SaveChangesAsync();
+            await outputCacheStore.EvictByTagAsync(cache, default);
             return NoContent();
         }
 
@@ -261,6 +275,7 @@ namespace BibliotecaAPI.Controllers
 
             mapper.Map(autorPatchDTO,autorDB);
             await context.SaveChangesAsync();
+            await outputCacheStore.EvictByTagAsync(cache, default);
             return NoContent();
         }
 
@@ -276,6 +291,7 @@ namespace BibliotecaAPI.Controllers
 
             context.Remove(autor);
             await context.SaveChangesAsync();
+            await outputCacheStore.EvictByTagAsync(cache, default);
             await almacenadorArchivos.Borrar(autor.Foto, contenedor);
 
             return NoContent();
