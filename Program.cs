@@ -18,15 +18,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 // área de servicios
 
-//builder.Services.AddOutputCache(opciones =>
-//{
-//    opciones.DefaultExpirationTimeSpan = TimeSpan.FromSeconds(60);
-//});
+builder.Services.AddOutputCache(opciones =>
+{
+    opciones.DefaultExpirationTimeSpan = TimeSpan.FromSeconds(60);
+});
 
-builder.Services.AddStackExchangeRedisOutputCache(opciones =>
+/*builder.Services.AddStackExchangeRedisOutputCache(opciones =>
 {
     opciones.Configuration = builder.Configuration.GetConnectionString("redis");
-});
+}); */
 
 builder.Services.AddDataProtection();
 
@@ -45,7 +45,7 @@ builder.Services.AddAutoMapper(typeof(Program));
 
 builder.Services.AddControllers(opciones =>
 {
-    opciones.Filters.Add<FiltroTiempoEjecucion>();
+    
     opciones.Conventions.Add(new ConvencionAgrupaPorVersion());
 }).AddNewtonsoftJson();
 
@@ -60,7 +60,6 @@ builder.Services.AddScoped<UserManager<Usuario>>();
 builder.Services.AddScoped<SignInManager<Usuario>>();
 builder.Services.AddTransient<IServiciosUsuarios, ServiciosUsuarios>();
 builder.Services.AddTransient<IAlmacenadorArchivos, AlmacenadorArchivosAzure>();
-builder.Services.AddScoped<MiFiltroDeAccion>();
 builder.Services.AddScoped<FiltroValidacionLibro>();
 builder.Services.AddScoped<BibliotecaAPI.Servicios.V1.IServiciosAutores,
             BibliotecaAPI.Servicios.V1.ServiciosAutores>();
