@@ -13,7 +13,7 @@ using System.Runtime.InteropServices;
 namespace BibliotecaAPI.Controllers.V2
 {
     [ApiController]
-    [Route("api/V2/libros/{libroId:int}/comentarios")]
+    [Route("api/v2/libros/{libroId:int}/comentarios")]
     [Authorize]
     public class ComentariosController: ControllerBase
     {

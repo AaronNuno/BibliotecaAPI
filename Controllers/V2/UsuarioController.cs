@@ -17,7 +17,7 @@ using System.Text;
 namespace BibliotecaAPI.Controllers.V2
 {
     [ApiController]
-    [Route("api/V2/usuarios")]
+    [Route("api/v2/usuarios")]
    
     public class UsuarioController : ControllerBase
     {

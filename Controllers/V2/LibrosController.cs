@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 namespace BibliotecaAPI.Controllers.V2
 {
     [ApiController]
-    [Route("api/V2/libros")]
+    [Route("api/v2/libros")]
     [Authorize(Policy = "esadmin")]
 
     public class LibrosController : ControllerBase

@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 namespace BibliotecaAPI.Controllers.V2
 {
     [ApiController]
-    [Route("api/V2/autores-coleccion")]
+    [Route("api/v2/autores-coleccion")]
     [Authorize(Policy = "esadmin")]
     public class AutoresColeccionControler: ControllerBase
     {

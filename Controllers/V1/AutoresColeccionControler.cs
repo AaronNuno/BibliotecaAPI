@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 namespace BibliotecaAPI.Controllers.V1
 {
     [ApiController]
-    [Route("api/V1/autores-coleccion")]
+    [Route("api/v1/autores-coleccion")]
     [Authorize(Policy = "esadmin")]
     public class AutoresColeccionControler: ControllerBase
     {
@@ -56,7 +56,7 @@ namespace BibliotecaAPI.Controllers.V1
             return autoresDTO;
         }
 
-        [HttpPost]
+        [HttpPost (Name = "CrearAutoresV1")]
         public async Task<ActionResult> Post(IEnumerable<AutorCreacionDTO> autoresCreacionDTO)
         {
             var autores = mapper.Map<IEnumerable<Autor>>(autoresCreacionDTO);

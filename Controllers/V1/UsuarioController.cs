@@ -17,7 +17,7 @@ using System.Text;
 namespace BibliotecaAPI.Controllers.V1
 {
     [ApiController]
-    [Route("api/V1/usuarios")]
+    [Route("api/v1/usuarios")]
    
     public class UsuarioController : ControllerBase
     {
@@ -40,7 +40,7 @@ namespace BibliotecaAPI.Controllers.V1
             this.mapper = mapper;
         }
 
-        [HttpGet]
+        [HttpGet(Name ="ObtenerUsuariosV1")]
         [Authorize (Policy ="esadmin")]
 
         public async Task<IEnumerable<UsuarioDTO>> Get()
@@ -53,7 +53,7 @@ namespace BibliotecaAPI.Controllers.V1
         }
 
 
-        [HttpPost("registro")]
+        [HttpPost("registro",Name = "RegistroUsuarioV1")]
         public async Task<ActionResult<RespuestaAutentificacionDTO>> Registrar(CredencialesUsuarioDTO credencialesUsuarioDTO)
         {
             var usuario = new Usuario
@@ -83,7 +83,7 @@ namespace BibliotecaAPI.Controllers.V1
 
         }
 
-        [HttpPut]
+        [HttpPut(Name = "ActualizarUsuarioV1")]
         [Authorize]
         public async Task<ActionResult> Put(ActualizarUsuarioDTO actualizarUsuarioDTO)
         {
@@ -101,7 +101,7 @@ namespace BibliotecaAPI.Controllers.V1
         }
 
 
-        [HttpGet("renovar-token")]
+        [HttpGet("renovar-token",Name ="RenovarTokenV1")]
         [Authorize]
         public async Task<ActionResult<RespuestaAutentificacionDTO>> RenovarToken()
         {
@@ -119,7 +119,7 @@ namespace BibliotecaAPI.Controllers.V1
             return respuestaAutenticacion;
         }
 
-        [HttpPost("hacer-admin")]
+        [HttpPost("hacer-admin",Name ="HacerAdminV1")]
         [Authorize(Policy = "esadmin")]
         public async Task<ActionResult>  HacerAdmin(EditarClaimDTO editarClaimDTO)
         {
@@ -136,7 +136,7 @@ namespace BibliotecaAPI.Controllers.V1
 
         }
 
-        [HttpPost("remover-admin")]
+        [HttpPost("remover-admin",Name ="BorrarAdminV1")]
         [Authorize(Policy = "esadmin")]
         public async Task<ActionResult> RemoverAdmin(EditarClaimDTO editarClaimDTO)
         {
@@ -156,7 +156,7 @@ namespace BibliotecaAPI.Controllers.V1
 
 
 
-        [HttpPost("login")]
+        [HttpPost("login",Name = "LoginUsuarioV1")]
         public async Task<ActionResult<RespuestaAutentificacionDTO>> Login(
             CredencialesUsuarioDTO credencialesUsuarioDTO)
         {

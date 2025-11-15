@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 namespace BibliotecaAPI.Controllers.V1
 {
     [ApiController]
-    [Route("api/V1/libros")]
+    [Route("api/v1/libros")]
     [Authorize(Policy = "esadmin")]
 
     public class LibrosController : ControllerBase
@@ -31,7 +31,7 @@ namespace BibliotecaAPI.Controllers.V1
 
 
 
-        [HttpGet]
+        [HttpGet (Name ="ObtenerLibrosV1")]
         [AllowAnonymous]
         [OutputCache(Tags = [cache])]
         public async Task<IEnumerable<LibroDTO>> Get([FromQuery] PaginacionDTO  paginacionDTO )
@@ -66,7 +66,7 @@ namespace BibliotecaAPI.Controllers.V1
         }
 
 
-        [HttpPost]  // api/libros
+        [HttpPost(Name ="CrearLibroV1")]  // api/libros
         [ServiceFilter<FiltroValidacionLibro>()]
         public async Task<ActionResult<LibroDTO>> Post(LibroCreacionDTO libroCreacionDTO)
         {
@@ -96,7 +96,7 @@ namespace BibliotecaAPI.Controllers.V1
         }
 
 
-        [HttpPut ("{id:int}")] // api/libros/id
+        [HttpPut ("{id:int}",Name ="ModificarLibroV1")] // api/libros/id
         [ServiceFilter<FiltroValidacionLibro>()]
         public async Task<ActionResult> Put(int id, LibroCreacionDTO libroCreacionDTO)
         {
@@ -122,7 +122,7 @@ namespace BibliotecaAPI.Controllers.V1
         } 
 
 
-        [HttpDelete("{id:int}")]
+        [HttpDelete("{id:int}",Name ="BorrarLibroV1")]
         public async Task<ActionResult<Libro>> Delete (int id)
         {
             var registrosBorrados = await context.Libros.Where(x => x.Id == id).ExecuteDeleteAsync();

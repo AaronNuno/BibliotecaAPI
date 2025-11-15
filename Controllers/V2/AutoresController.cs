@@ -22,7 +22,7 @@ using BibliotecaAPI.Servicios.V1;
 namespace BibliotecaAPI.Controllers.V2
 {
     [ApiController]
-    [Route("api/V2/autores")]
+    [Route("api/v2/autores")]
     [Authorize(Policy = "esadmin")]
     [FiltroAgregarCabecera("controlador","autores")]
     public class AutoresController : ControllerBase
