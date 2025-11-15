@@ -61,6 +61,7 @@ builder.Services.AddTransient<IServiciosUsuarios, ServiciosUsuarios>();
 builder.Services.AddTransient<IAlmacenadorArchivos, AlmacenadorArchivosAzure>();
 builder.Services.AddScoped<MiFiltroDeAccion>();
 builder.Services.AddScoped<FiltroValidacionLibro>();
+builder.Services.AddScoped<BibliotecaAPI.Servicios.V1.IServiciosAutores, BibliotecaAPI.Servicios.V1.ServiciosAutores>();
 
 
 
@@ -120,6 +121,8 @@ opciones.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
 
     opciones.OperationFilter<FiltroAutorizacion>();
 
+
+
    /* opciones.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -137,11 +140,6 @@ opciones.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
     }); */
 
 });
-
-
-
-
-
 
 
 var app = builder.Build();
@@ -180,5 +178,23 @@ app.UseCors();
 
 
 app.MapControllers();
+
+
+// Ver error 
+/* app.Use(async (context, next) =>
+{
+    try
+    {
+        await next.Invoke();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("ERROR GLOBAL:");
+        Console.WriteLine(ex.Message);
+        throw;
+    }
+}); */ 
+
+
 
 app.Run();

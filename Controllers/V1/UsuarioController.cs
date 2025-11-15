@@ -14,10 +14,10 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace BibliotecaAPI.Controllers.V2
+namespace BibliotecaAPI.Controllers.V1
 {
     [ApiController]
-    [Route("api/V2/usuarios")]
+    [Route("api/V1/usuarios")]
    
     public class UsuarioController : ControllerBase
     {

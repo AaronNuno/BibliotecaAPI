@@ -19,10 +19,10 @@ using System.Linq.Dynamic.Core;
 using Microsoft.AspNetCore.OutputCaching;
 using BibliotecaAPI.Servicios.V1;
 
-namespace BibliotecaAPI.Controllers.V2
+namespace BibliotecaAPI.Controllers.V1
 {
     [ApiController]
-    [Route("api/V2/autores")]
+    [Route("api/V1/autores")]
     [Authorize(Policy = "esadmin")]
     [FiltroAgregarCabecera("controlador","autores")]
     public class AutoresController : ControllerBase
@@ -37,7 +37,7 @@ namespace BibliotecaAPI.Controllers.V2
         private const string cache = "autores-obtener";
 
         public AutoresController(AplicationDBContext context, IMapper mapper, IAlmacenadorArchivos almacenadorArchivos
-                                  ,ILogger<AutoresController> logger,IOutputCacheStore outputCacheStore, IServiciosAutores serviciosAutoresV1)
+                                  ,ILogger<AutoresController> logger,IOutputCacheStore outputCacheStore,IServiciosAutores serviciosAutoresV1)
         {
             this.context = context;
             this.mapper = mapper;
@@ -55,9 +55,9 @@ namespace BibliotecaAPI.Controllers.V2
         [FiltroAgregarCabecera("accion", "obtener-autores")]
         public async Task<IEnumerable<AutorDTO>> Get([FromQuery]  PaginacionDTO paginacionDTO)
         {
-          
-         return  await serviciosAutoresV1.Get(paginacionDTO);
-            
+
+            return await serviciosAutoresV1.Get(paginacionDTO);
+         
         }
 
         [HttpGet("{nombre:alpha}")]
@@ -76,7 +76,7 @@ namespace BibliotecaAPI.Controllers.V2
 
 
 
-        [HttpGet("{id:int}", Name = "ObtenerAutorV2")] // api/autores/id
+        [HttpGet("{id:int}", Name = "ObtenerAutorV1")] // api/autores/id
         [AllowAnonymous]
         [EndpointSummary("Obtiene Autor por ID")]
         [EndpointDescription("Obtiene un autor por su ID. Incluye sus libros. Si el autor no existe, se retorna 404")]
@@ -205,7 +205,7 @@ namespace BibliotecaAPI.Controllers.V2
             await context.SaveChangesAsync();
             await outputCacheStore.EvictByTagAsync(cache, default);
             var autorDTO = mapper.Map<AutorDTO>(autor);
-            return CreatedAtRoute("ObtenerAutorV2", new { id = autor.Id }, autorDTO);
+            return CreatedAtRoute("ObtenerAutorV1", new { id = autor.Id }, autorDTO);
         }
 
 
@@ -226,7 +226,7 @@ namespace BibliotecaAPI.Controllers.V2
             await outputCacheStore.EvictByTagAsync(cache, default);
 
             var autorDTO = mapper.Map<AutorDTO>(autor);
-            return CreatedAtRoute("ObtenerAutorV2", new { id = autor.Id }, autorDTO);
+            return CreatedAtRoute("ObtenerAutorV1", new { id = autor.Id }, autorDTO);
         }
 
 
