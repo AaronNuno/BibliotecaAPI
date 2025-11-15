@@ -14,7 +14,6 @@ namespace BibliotecaAPI.Controllers.V1
     [ApiController]
     [Route("api/v1/libros")]
     [Authorize(Policy = "esadmin")]
-
     public class LibrosController : ControllerBase
     {
         private readonly AplicationDBContext context;
@@ -22,39 +21,39 @@ namespace BibliotecaAPI.Controllers.V1
         private readonly IOutputCacheStore outputCacheStore;
         private const string cache = "libros-obtener";
 
-        public LibrosController(AplicationDBContext context, IMapper mapper, IOutputCacheStore outputCacheStore)
+        public LibrosController(AplicationDBContext context, IMapper mapper,
+            IOutputCacheStore outputCacheStore)
         {
             this.context = context;
             this.mapper = mapper;
             this.outputCacheStore = outputCacheStore;
         }
 
-
-
-        [HttpGet (Name ="ObtenerLibrosV1")]
+        [HttpGet(Name = "ObtenerLibrosV1")]
         [AllowAnonymous]
         [OutputCache(Tags = [cache])]
-        public async Task<IEnumerable<LibroDTO>> Get([FromQuery] PaginacionDTO  paginacionDTO )
+        public async Task<IEnumerable<LibroDTO>> Get([FromQuery] PaginacionDTO paginacionDTO)
         {
             var queryable = context.Libros.AsQueryable();
             await HttpContext.InsertarParametrosPaginacionEnCabecera(queryable);
-            var libros = await queryable.OrderBy(x => x.Titulo).Paginar(paginacionDTO).ToListAsync();
-            var libroDTO = mapper.Map<IEnumerable<LibroDTO>>(libros);
-            return libroDTO;
+            var libros = await queryable
+                        .OrderBy(x => x.Titulo)
+                        .Paginar(paginacionDTO).ToListAsync();
+            var librosDTO = mapper.Map<IEnumerable<LibroDTO>>(libros);
+            return librosDTO;
         }
 
-
-        [HttpGet("{id:int}", Name = "ObtenerLibroV1")] // api/libros/id
+        [HttpGet("{id:int}", Name = "ObtenerLibroV1")]
         [AllowAnonymous]
         [OutputCache(Tags = [cache])]
         public async Task<ActionResult<LibroConAutorDTO>> Get(int id)
         {
             var libro = await context.Libros
                 .Include(x => x.Autores)
-                .ThenInclude(x => x.Autor)
+                    .ThenInclude(x => x.Autor)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
-            if (libro == null)
+            if (libro is null)
             {
                 return NotFound();
             }
@@ -62,16 +61,12 @@ namespace BibliotecaAPI.Controllers.V1
             var libroDTO = mapper.Map<LibroConAutorDTO>(libro);
 
             return libroDTO;
-
         }
 
-
-        [HttpPost(Name ="CrearLibroV1")]  // api/libros
+        [HttpPost(Name = "CrearLibroV1")]
         [ServiceFilter<FiltroValidacionLibro>()]
-        public async Task<ActionResult<LibroDTO>> Post(LibroCreacionDTO libroCreacionDTO)
+        public async Task<ActionResult> Post(LibroCreacionDTO libroCreacionDTO)
         {
-            
-
             var libro = mapper.Map<Libro>(libroCreacionDTO);
             AsignarOrdenAutores(libro);
 
@@ -81,63 +76,57 @@ namespace BibliotecaAPI.Controllers.V1
 
             var libroDTO = mapper.Map<LibroDTO>(libro);
 
-            return CreatedAtRoute("ObtenerLibroV1", new  { id = libro.Id }, libroDTO);
+            return CreatedAtRoute("ObtenerLibroV1", new { id = libro.Id }, libroDTO);
         }
 
         private void AsignarOrdenAutores(Libro libro)
         {
-            if(libro.Autores is not null)
+            if (libro.Autores is not null)
             {
-                for (int i =0; i < libro.Autores.Count; i++)
+                for (int i = 0; i < libro.Autores.Count; i++)
                 {
                     libro.Autores[i].orden = i;
                 }
             }
         }
 
-
-        [HttpPut ("{id:int}",Name ="ModificarLibroV1")] // api/libros/id
+        [HttpPut("{id:int}", Name = "ActualizarLibroV1")]
         [ServiceFilter<FiltroValidacionLibro>()]
         public async Task<ActionResult> Put(int id, LibroCreacionDTO libroCreacionDTO)
         {
 
-            
 
             var libroDB = await context.Libros
-                .Include(x => x.Autores)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                            .Include(x => x.Autores)
+                            .FirstOrDefaultAsync(x => x.Id == id);
 
             if (libroDB is null)
             {
                 return NotFound();
-
             }
+
             libroDB = mapper.Map(libroCreacionDTO, libroDB);
             AsignarOrdenAutores(libroDB);
 
-
             await context.SaveChangesAsync();
             await outputCacheStore.EvictByTagAsync(cache, default);
+
             return NoContent();
-        } 
+        }
 
-
-        [HttpDelete("{id:int}",Name ="BorrarLibroV1")]
-        public async Task<ActionResult<Libro>> Delete (int id)
+        [HttpDelete("{id:int}", Name = "BorrarLibroV1")]
+        public async Task<ActionResult> Delete(int id)
         {
             var registrosBorrados = await context.Libros.Where(x => x.Id == id).ExecuteDeleteAsync();
+
             if (registrosBorrados == 0)
             {
                 return NotFound();
             }
 
             await outputCacheStore.EvictByTagAsync(cache, default);
+
             return NoContent();
-
         }
-
-
-
-
     }
 }

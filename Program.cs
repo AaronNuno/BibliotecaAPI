@@ -4,10 +4,10 @@ using BibliotecaAPI.Entidades;
 using BibliotecaAPI.Servicios;
 using BibliotecaAPI.Swagger;
 using BibliotecaAPI.Utilidades;
+using BibliotecaAPI.Utilidades.V1;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -15,12 +15,13 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//add services to the container
 
-/*builder.Services.AddOutputCache(opciones =>
-{
-    opciones.DefaultExpirationTimeSpan = TimeSpan.FromSeconds(15);
-}); */
+// área de servicios
+
+//builder.Services.AddOutputCache(opciones =>
+//{
+//    opciones.DefaultExpirationTimeSpan = TimeSpan.FromSeconds(60);
+//});
 
 builder.Services.AddStackExchangeRedisOutputCache(opciones =>
 {
@@ -31,27 +32,25 @@ builder.Services.AddDataProtection();
 
 var origenesPermitidos = builder.Configuration.GetSection("origenesPermitidos").Get<string[]>()!;
 
-builder.Services.AddCors(opciones=>
+builder.Services.AddCors(opciones =>
 {
     opciones.AddDefaultPolicy(opcionesCORS =>
-    opcionesCORS.WithOrigins(origenesPermitidos).AllowAnyMethod().AllowAnyHeader()
-    .WithExposedHeaders("cantidad-total-registros")
-    );
-}
-    );
+    {
+        opcionesCORS.WithOrigins(origenesPermitidos).AllowAnyMethod().AllowAnyHeader()
+        .WithExposedHeaders("cantidad-total-registros");
+    });
+});
 
 builder.Services.AddAutoMapper(typeof(Program));
 
-builder.Services.AddControllers(opciones=>
+builder.Services.AddControllers(opciones =>
 {
     opciones.Filters.Add<FiltroTiempoEjecucion>();
     opciones.Conventions.Add(new ConvencionAgrupaPorVersion());
-
 }).AddNewtonsoftJson();
 
-builder.Services.AddDbContext<AplicationDBContext>(options =>
-    options.UseSqlServer("name=DefaultConnection"));
-
+builder.Services.AddDbContext<AplicationDBContext>(opciones =>
+    opciones.UseSqlServer("name=DefaultConnection"));
 
 builder.Services.AddIdentityCore<Usuario>()
     .AddEntityFrameworkStores<AplicationDBContext>()
@@ -63,9 +62,14 @@ builder.Services.AddTransient<IServiciosUsuarios, ServiciosUsuarios>();
 builder.Services.AddTransient<IAlmacenadorArchivos, AlmacenadorArchivosAzure>();
 builder.Services.AddScoped<MiFiltroDeAccion>();
 builder.Services.AddScoped<FiltroValidacionLibro>();
-builder.Services.AddScoped<BibliotecaAPI.Servicios.V1.IServiciosAutores, BibliotecaAPI.Servicios.V1.ServiciosAutores>();
+builder.Services.AddScoped<BibliotecaAPI.Servicios.V1.IServiciosAutores,
+            BibliotecaAPI.Servicios.V1.ServiciosAutores>();
 
+builder.Services.AddScoped<BibliotecaAPI.Servicios.V1.IGeneradorEnlaces,
+            BibliotecaAPI.Servicios.V1.GeneradorEnlaces>();
 
+builder.Services.AddScoped<HATEOASAutorAttribute>();
+builder.Services.AddScoped<HATEOASAutoresAttribute>();
 
 builder.Services.AddHttpContextAccessor();
 
@@ -79,29 +83,24 @@ builder.Services.AddAuthentication().AddJwtBearer(opciones =>
         ValidateAudience = false,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["llavejwt"]!)),
+        IssuerSigningKey =
+        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["llavejwt"]!)),
         ClockSkew = TimeSpan.Zero
-
-
     };
-
 });
 
 builder.Services.AddAuthorization(opciones =>
 {
-    opciones.AddPolicy("esadmin", politca => politca.RequireClaim("esadmin"));
+    opciones.AddPolicy("esadmin", politica => politica.RequireClaim("esadmin"));
 });
-
-
 
 builder.Services.AddSwaggerGen(opciones =>
 {
-opciones.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
- 
+    opciones.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
     {
-       Version = "v1",
-       Title = "Biblioteca API",
-        Description = "Este es un API para trabajar con datos de autores y libros",
+        Version = "v1",
+        Title = "Biblioteca API",
+        Description = "Este es un web api para trabajar con datos de autores y libros",
         Contact = new Microsoft.OpenApi.Models.OpenApiContact
         {
             Email = "aaron_a_7@hotmail.com",
@@ -111,16 +110,15 @@ opciones.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
         License = new Microsoft.OpenApi.Models.OpenApiLicense
         {
             Name = "MIT",
-            Url = new Uri("https://mit-license.org/")
+            Url = new Uri("https://opensource.org/license/mit/")
         }
     });
 
-opciones.SwaggerDoc("v2", new Microsoft.OpenApi.Models.OpenApiInfo
-
+    opciones.SwaggerDoc("v2", new Microsoft.OpenApi.Models.OpenApiInfo
     {
         Version = "v2",
         Title = "Biblioteca API",
-        Description = "Este es un API para trabajar con datos de autores y libros",
+        Description = "Este es un web api para trabajar con datos de autores y libros",
         Contact = new Microsoft.OpenApi.Models.OpenApiContact
         {
             Email = "aaron_a_7@hotmail.com",
@@ -130,7 +128,7 @@ opciones.SwaggerDoc("v2", new Microsoft.OpenApi.Models.OpenApiInfo
         License = new Microsoft.OpenApi.Models.OpenApiLicense
         {
             Name = "MIT",
-            Url = new Uri("https://mit-license.org/")
+            Url = new Uri("https://opensource.org/license/mit/")
         }
     });
 
@@ -145,53 +143,49 @@ opciones.SwaggerDoc("v2", new Microsoft.OpenApi.Models.OpenApiInfo
 
     opciones.OperationFilter<FiltroAutorizacion>();
 
-
-
-   /* opciones.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-        new OpenApiSecurityScheme
-        {
-            Reference = new OpenApiReference
-            {
-                Type= ReferenceType.SecurityScheme,
-                Id= "Bearer"
-            }
-        },
-            new string[]{}
-
-        }
-    }); */
+    //opciones.AddSecurityRequirement(new OpenApiSecurityRequirement
+    //{
+    //    {
+    //        new OpenApiSecurityScheme
+    //        {
+    //            Reference = new OpenApiReference
+    //            {
+    //                Type = ReferenceType.SecurityScheme,
+    //                Id = "Bearer"
+    //            }
+    //        },
+    //        new string[]{}
+    //    }
+    //});
 
 });
 
-
 var app = builder.Build();
 
-// add middleware 
+// área de middlewares
 
 app.UseExceptionHandler(exceptionHandlerApp => exceptionHandlerApp.Run(async context =>
+{
+    var exceptionHandlerFeature = context.Features.Get<IExceptionHandlerFeature>();
+    var excepcion = exceptionHandlerFeature?.Error!;
+
+    var error = new Error()
     {
-        var exceptionHandlerFeature = context.Features.Get<IExceptionHandlerFeature>();
-        var excepcion = exceptionHandlerFeature?.Error!;
+        MensajeDeError = excepcion.Message,
+        StrackTrace = excepcion.StackTrace,
+        Fecha = DateTime.UtcNow
+    };
 
-        var error = new Error()
-        {
-            MensajeDeError = excepcion.Message,
-            StrackTrace = excepcion.StackTrace,
-            Fecha = DateTime.UtcNow
-        };
-
-        var dbContext = context.RequestServices.GetRequiredService<AplicationDBContext>();
-        dbContext.Add(error);
-        await dbContext.SaveChangesAsync();
-        await Results.InternalServerError( new
-        {
-            Tipo = "error",
-            mensaje = "Ha ocurrido un error inesperado",
-            estatus = 500
-        }).ExecuteAsync (context);
-    }));
+    var dbContext = context.RequestServices.GetRequiredService<AplicationDBContext>();
+    dbContext.Add(error);
+    await dbContext.SaveChangesAsync();
+    await Results.InternalServerError(new
+    {
+        tipo = "error",
+        mensaje = "Ha ocurrido un error inesperado",
+        estatus = 500
+    }).ExecuteAsync(context);
+}));
 
 app.UseSwagger();
 app.UseSwaggerUI(opciones =>
@@ -204,25 +198,8 @@ app.UseStaticFiles();
 
 app.UseCors();
 
+app.UseOutputCache();
 
 app.MapControllers();
-
-
-// Ver error 
-/* app.Use(async (context, next) =>
-{
-    try
-    {
-        await next.Invoke();
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine("ERROR GLOBAL:");
-        Console.WriteLine(ex.Message);
-        throw;
-    }
-}); */ 
-
-
 
 app.Run();

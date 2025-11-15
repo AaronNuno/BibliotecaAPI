@@ -8,36 +8,35 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.EntityFrameworkCore;
-using System.Runtime.InteropServices;
 
 namespace BibliotecaAPI.Controllers.V1
 {
     [ApiController]
     [Route("api/v1/libros/{libroId:int}/comentarios")]
     [Authorize]
-    public class ComentariosController: ControllerBase
+    public class ComentariosController : ControllerBase
     {
         private readonly AplicationDBContext context;
         private readonly IMapper mapper;
-        private readonly IServiciosUsuarios serviciosUsuario;
+        private readonly IServiciosUsuarios serviciosUsuarios;
         private readonly IOutputCacheStore outputCacheStore;
         private const string cache = "comentarios-obtener";
 
-        public ComentariosController(AplicationDBContext context, IMapper mapper ,
-                                      IServiciosUsuarios serviciosUsuario,IOutputCacheStore outputCacheStore)
+        public ComentariosController(AplicationDBContext context, IMapper mapper,
+            IServiciosUsuarios serviciosUsuarios, IOutputCacheStore outputCacheStore)
         {
             this.context = context;
             this.mapper = mapper;
-            this.serviciosUsuario = serviciosUsuario;
+            this.serviciosUsuarios = serviciosUsuarios;
             this.outputCacheStore = outputCacheStore;
         }
 
         [HttpGet(Name = "ObtenerComentariosV1")]
         [AllowAnonymous]
-        //[OutputCache(Tags = [cache])]
+        [OutputCache(Tags = [cache])]
         public async Task<ActionResult<List<ComentarioDTO>>> Get(int libroId)
         {
-            var existeLibro  = await context.Libros.AnyAsync(x => x.Id == libroId);
+            var existeLibro = await context.Libros.AnyAsync(x => x.Id == libroId);
 
             if (!existeLibro)
             {
@@ -45,23 +44,22 @@ namespace BibliotecaAPI.Controllers.V1
             }
 
             var comentarios = await context.Comentarios
-                .Include(x=> x.Usuario)    
+                .Include(x => x.Usuario)
                 .Where(x => x.LibroId == libroId)
                 .OrderByDescending(x => x.FechaPublicacion)
                 .ToListAsync();
 
             return mapper.Map<List<ComentarioDTO>>(comentarios);
-      
         }
 
-        [HttpGet("{id}", Name = "ObetenerComentarioV1")]
+        [HttpGet("{id}", Name = "ObtenerComentarioV1")]
         [AllowAnonymous]
         [OutputCache(Tags = [cache])]
-        public async Task<ActionResult<ComentarioDTO>> Get (Guid id)
+        public async Task<ActionResult<ComentarioDTO>> Get(Guid id)
         {
             var comentario = await context.Comentarios
-                .Include (x=> x.Usuario)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                                    .Include(x => x.Usuario)
+                                    .FirstOrDefaultAsync(x => x.Id == id);
 
             if (comentario is null)
             {
@@ -69,10 +67,9 @@ namespace BibliotecaAPI.Controllers.V1
             }
 
             return mapper.Map<ComentarioDTO>(comentario);
-
         }
 
-        [HttpPost(Name ="CrearComentarioV1")]
+        [HttpPost(Name = "CrearComentarioV1")]
         public async Task<ActionResult> Post(int libroId, ComentarioCreacionDTO comentarioCreacionDTO)
         {
             var existeLibro = await context.Libros.AnyAsync(x => x.Id == libroId);
@@ -81,7 +78,8 @@ namespace BibliotecaAPI.Controllers.V1
             {
                 return NotFound();
             }
-            var usuario = await serviciosUsuario.ObetenerUsuario();
+
+            var usuario = await serviciosUsuarios.ObetenerUsuario();
 
             if (usuario is null)
             {
@@ -95,13 +93,12 @@ namespace BibliotecaAPI.Controllers.V1
             context.Add(comentario);
             await context.SaveChangesAsync();
             await outputCacheStore.EvictByTagAsync(cache, default);
-
             var comentarioDTO = mapper.Map<ComentarioDTO>(comentario);
 
-            return CreatedAtRoute("ObetenerComentarioV1", new {id = comentario.Id, libroId }, comentarioDTO);
-
+            return CreatedAtRoute("ObtenerComentarioV1", new { id = comentario.Id, libroId }, comentarioDTO);
         }
-        [HttpPatch("{id}",Name ="PathComentarioV1")]
+
+        [HttpPatch("{id}", Name = "PatchComentarioV1")]
         public async Task<ActionResult> Patch(Guid id, int libroId, JsonPatchDocument<ComentarioPatchDTO> patchDoc)
         {
             if (patchDoc is null)
@@ -116,25 +113,24 @@ namespace BibliotecaAPI.Controllers.V1
                 return NotFound();
             }
 
-            var usuario = await serviciosUsuario.ObetenerUsuario();
+            var usuario = await serviciosUsuarios.ObetenerUsuario();
 
             if (usuario is null)
             {
                 return NotFound();
             }
 
+
             var comentarioDB = await context.Comentarios.FirstOrDefaultAsync(x => x.Id == id);
-
-            if (comentarioDB.UsuarioId != usuario.Id)
-            { 
-                return Forbid();
-            }
-
-
 
             if (comentarioDB is null)
             {
                 return NotFound();
+            }
+
+            if (comentarioDB.UsuarioId != usuario.Id)
+            {
+                return Forbid();
             }
 
             var comentarioPatchDTO = mapper.Map<ComentarioPatchDTO>(comentarioDB);
@@ -153,14 +149,11 @@ namespace BibliotecaAPI.Controllers.V1
             await context.SaveChangesAsync();
             await outputCacheStore.EvictByTagAsync(cache, default);
 
-
             return NoContent();
         }
 
-
-
-        [HttpDelete("{id}",Name ="BorrarComentarioV1")]
-        public async Task<ActionResult> Delete (Guid id, int libroId)
+        [HttpDelete("{id}", Name = "BorrarComentarioV1")]
+        public async Task<ActionResult> Delete(Guid id, int libroId)
         {
             var existeLibro = await context.Libros.AnyAsync(x => x.Id == libroId);
 
@@ -169,7 +162,7 @@ namespace BibliotecaAPI.Controllers.V1
                 return NotFound();
             }
 
-            var usuario = await serviciosUsuario.ObetenerUsuario();
+            var usuario = await serviciosUsuarios.ObetenerUsuario();
 
             if (usuario is null)
             {
@@ -190,14 +183,10 @@ namespace BibliotecaAPI.Controllers.V1
 
             comentarioDB.EstaBorrado = true;
             context.Update(comentarioDB);
-
             await context.SaveChangesAsync();
             await outputCacheStore.EvictByTagAsync(cache, default);
 
             return NoContent();
-
-
         }
-
     }
 }
