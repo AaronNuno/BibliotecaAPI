@@ -161,6 +161,15 @@ builder.Services.AddSwaggerGen(opciones =>
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var dbcontext = scope.ServiceProvider.GetRequiredService<AplicationDBContext>();
+    if(dbcontext.Database.IsRelational())
+    {
+        dbcontext.Database.Migrate();
+    }
+}
+
 // área de middlewares
 
 app.UseExceptionHandler(exceptionHandlerApp => exceptionHandlerApp.Run(async context =>
@@ -202,3 +211,5 @@ app.UseOutputCache();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }
